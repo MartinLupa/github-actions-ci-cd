@@ -1,0 +1,78 @@
+name: Grafana Cloud - Provision Synthetic Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'The name of the check rule'
+        required: true
+        type: string
+      url:
+        description: 'The URL to check in Grafana Cloud Synthetic Monitoring'
+        required: true
+        type: string
+      tag:
+        description: 'Project tag'
+        type: choice
+        required: true
+        options:
+          - 'unified'
+          - 'login'
+        default: 'unified'
+
+permissions:
+  contents: write
+
+jobs:
+  provision-check:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Provision Synthetic Check
+        run: |
+          cat <<EOF > payload.json
+          {
+            "target": "${{ github.event.inputs.url }}",
+            "job": "${{ github.event.inputs.name }}",
+            "frequency": 3600000,
+            "timeout": 3000,
+            "enabled": true,
+            "alertSensitivity": "low",
+            "basicMetricsOnly": true,
+            "probes": [7],
+            "labels": [
+              {
+                "name": "Project",
+                "value": "${{ github.event.inputs.tag }}"
+              }
+            ],
+            "settings": {
+              "http": {
+                "ipVersion": "Any",
+                "method": "GET",
+                "noFollowRedirects": false,
+                "validStatusCodes": [200, 201, 202]
+              }
+            }
+          }
+          EOF
+
+          curl -X POST "${{ secrets.GRAFANA_BACKEND_URL }}" \
+          -H "Authorization: Bearer ${{ secrets.GRAFANA_ACCESS_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d @payload.json \
+          -o response.json \
+          -w "%{http_code}"
+
+          HTTP_STATUS=$(tail -n 1 response.json)
+
+          if [ "$HTTP_STATUS" -ne 201 ]; then
+            echo "Failed to create synthetic check"
+            cat response.json
+            exit 1
+          else
+            echo "Synthetic check created successfully!"
+          fi

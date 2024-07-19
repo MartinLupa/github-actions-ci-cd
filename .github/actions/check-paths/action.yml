@@ -1,0 +1,40 @@
+name: Check Paths
+description: Check paths to filter modified apps
+
+outputs:
+  unified:
+    description: 'Output for unified app'
+    value: ${{ steps.filter.outputs.unified }}
+  login:
+    description: 'Output for login app'
+    value: ${{ steps.filter.outputs.login }}
+  dynamic-forms-preview:
+    description: 'Output for dynamic forms preview app'
+    value: ${{ steps.filter.outputs.dynamic-forms-preview }}
+  dynamic-forms-form-settings:
+    description: 'Output for dynamic forms form settings app'
+    value: ${{ steps.filter.outputs.dynamic-forms-form-settings }}
+  dynamic-forms-subscriptions:
+    description: 'Output for dynamic forms subscriptions app'
+    value: ${{ steps.filter.outputs.dynamic-forms-subscriptions }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - name: Filter paths
+      id: filter
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          unified:
+            - added|modified|deleted: 'apps/unified/**'
+          login:
+            - added|modified|deleted: 'apps/login/**'
+          dynamic-forms-preview:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
+          dynamic-forms-form-settings:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-form-settings/**'
+          dynamic-forms-subscriptions:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-subscriptions/**'
+

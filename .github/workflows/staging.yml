@@ -25,6 +25,12 @@ jobs:
               - added|modified|deleted: 'apps/unified/**'
             login:
               - added|modified|deleted: 'apps/login/**'
+            dynamic-forms-preview:
+              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
+            dynamic-forms-form-settings:
+              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-form-settings/**'
+            dynamic-forms-subscriptions:
+              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-subscriptions/**'
 
   unified-preview-deploy:
     runs-on: ubuntu-latest
@@ -43,6 +49,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'preview'
 
   login-preview-deploy:
     runs-on: ubuntu-latest
@@ -61,3 +68,9 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'preview'
+
+  # TODO: Add deployment steps for the following apps:
+  # dynamic-forms-preview-staging-deploy
+  # dynamic-forms-form-settings-staging-deploy
+  # dynamic-forms-subscriptions-staging-deploy

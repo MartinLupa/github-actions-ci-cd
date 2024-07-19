@@ -5,26 +5,12 @@ on:
     branches:
       - main
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-
 jobs:
   check-paths:
     runs-on: ubuntu-latest
-    outputs:
-      unified: ${{ steps.filter.outputs.unified }}
-      login: ${{ steps.filter.outputs.login }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Filter paths
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            unified:
-              - added|modified|deleted: 'apps/unified/**'
-            login:
-              - added|modified|deleted: 'apps/login/**'
+      - name: Check paths
+        uses: ./.github/workflows/check-paths
 
   unified-production-deploy:
     runs-on: ubuntu-latest
@@ -63,3 +49,8 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-environment: 'production'
+
+  # TODO: Add deployment steps for the following apps:
+  # dynamic-forms-preview-prod-deploy
+  # dynamic-forms-form-settings-prod-deploy
+  # dynamic-forms-subscriptions-prod-deploy

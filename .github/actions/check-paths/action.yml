@@ -1,0 +1,48 @@
+name: Check Paths
+description: Check paths to filter modified apps
+
+outputs:
+  unified:
+    description: 'Output for unified app'
+    value: ${{ steps.set-outputs.outputs.unified }}
+  login:
+    description: 'Output for login app'
+    value: ${{ steps.set-outputs.outputs.login }}
+  dynamic-forms-preview:
+    description: 'Output for dynamic forms preview app'
+    value: ${{ steps.set-outputs.outputs.dynamic-forms-preview }}
+  dynamic-forms-form-settings:
+    description: 'Output for dynamic forms form settings app'
+    value: ${{ steps.set-outputs.outputs.dynamic-forms-form-settings }}
+  dynamic-forms-subscriptions:
+    description: 'Output for dynamic forms subscriptions app'
+    value: ${{ steps.set-outputs.outputs.dynamic-forms-subscriptions }}
+
+runs:
+  using: composite
+  steps:
+    - name: Filter paths
+      id: filter
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          unified:
+            - added|modified|deleted: 'apps/unified/**'
+          login:
+            - added|modified|deleted: 'apps/login/**'
+          dynamic-forms-preview:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
+          dynamic-forms-form-settings:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-form-settings/**'
+          dynamic-forms-subscriptions:
+            - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-subscriptions/**'
+
+    - name: "Set outputs"
+      shell: bash
+      id: set-outputs
+      run: |
+        echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT
+        echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT
+        echo "dynamic-forms-preview=${{ steps.filter.outputs.dynamic-forms-preview }}" >> $GITHUB_OUTPUT
+        echo "dynamic-forms-form-settings=${{ steps.filter.outputs.dynamic-forms-form-settings }}" >> $GITHUB_OUTPUT
+        echo "dynamic-forms-subscriptions=${{ steps.filter.outputs.dynamic-forms-subscriptions }}" >> $GITHUB_OUTPUT

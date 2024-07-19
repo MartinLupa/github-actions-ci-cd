@@ -18,19 +18,17 @@ jobs:
   check-paths:
     runs-on: ubuntu-latest
     outputs:
-      unified: ${{ steps.filter.outputs.unified }}
-      login: ${{ steps.filter.outputs.login }}
+      unified: ${{ steps.paths.outputs.unified }}
+      login: ${{ steps.paths.outputs.login }}
+      dynamic-forms-preview: ${{ steps.paths.outputs.dynamic-forms-preview }}
+      dynamic-forms-form-settings: ${{ steps.paths.outputs.dynamic-forms-form-settings }}
+      dynamic-forms-subscriptions: ${{ steps.paths.outputs.dynamic-forms-subscriptions }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Filter paths
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            unified:
-              - added|modified|deleted: 'apps/unified/**'
-            login:
-              - added|modified|deleted: 'apps/login/**'
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Check paths
+        id: paths
+        uses: ./.github/actions/check-paths
 
   unified-preview-deploy:
     runs-on: ubuntu-latest
@@ -39,11 +37,17 @@ jobs:
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.unified == 'true' }}
     steps:
+      - name: Check out code.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/unified'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'preview'
 
   login-preview-deploy:
     runs-on: ubuntu-latest
@@ -52,8 +56,19 @@ jobs:
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.login == 'true' }}
     steps:
+      - name: Check out code.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/login'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'preview'
+
+  # TODO: Add deployment steps for the following apps:
+  # dynamic-forms-preview-dev-deploy
+  # dynamic-forms-form-settings-dev-deploy
+  # dynamic-forms-subscriptions-dev-deploy

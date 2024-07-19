@@ -12,9 +12,6 @@ inputs:
     description: 'The Vercel authentication token'
     required: true
 
-env: 
-  VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-
 runs:
   using: composite
   steps:

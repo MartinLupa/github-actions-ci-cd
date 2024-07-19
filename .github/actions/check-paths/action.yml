@@ -28,10 +28,10 @@ runs:
         filters: |
           unified:
             - added|modified|deleted: 'apps/unified/**'
-              echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT
+              echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT;
           login:
             - added|modified|deleted: 'apps/login/**'
-              echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT
+              echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT;
           dynamic-forms-preview:
             - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
           dynamic-forms-form-settings:

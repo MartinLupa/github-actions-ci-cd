@@ -28,8 +28,10 @@ runs:
         filters: |
           unified:
             - added|modified|deleted: 'apps/unified/**'
+              echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT
           login:
             - added|modified|deleted: 'apps/login/**'
+              echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT
           dynamic-forms-preview:
             - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
           dynamic-forms-form-settings:
@@ -37,12 +39,12 @@ runs:
           dynamic-forms-subscriptions:
             - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-subscriptions/**'
 
-    - name: "Set outputs"
-      shell: bash
-      id: outputs
-      run: |
-        echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT
-        echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT
-        echo "dynamic-forms-preview=${{ steps.filter.outputs.dynamic-forms-preview }}" >> $GITHUB_OUTPUT
-        echo "dynamic-forms-form-settings=${{ steps.filter.outputs.dynamic-forms-form-settings }}" >> $GITHUB_OUTPUT
-        echo "dynamic-forms-subscriptions=${{ steps.filter.outputs.dynamic-forms-subscriptions }}" >> $GITHUB_OUTPUT
+    # - name: "Set outputs"
+    #   shell: bash
+    #   id: outputs
+    #   run: |
+    #     echo "unified=${{ steps.filter.outputs.unified }}" >> $GITHUB_OUTPUT
+    #     echo "login=${{ steps.filter.outputs.login }}" >> $GITHUB_OUTPUT
+    #     echo "dynamic-forms-preview=${{ steps.filter.outputs.dynamic-forms-preview }}" >> $GITHUB_OUTPUT
+    #     echo "dynamic-forms-form-settings=${{ steps.filter.outputs.dynamic-forms-form-settings }}" >> $GITHUB_OUTPUT
+    #     echo "dynamic-forms-subscriptions=${{ steps.filter.outputs.dynamic-forms-subscriptions }}" >> $GITHUB_OUTPUT

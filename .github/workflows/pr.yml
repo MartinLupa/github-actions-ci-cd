@@ -46,6 +46,7 @@ jobs:
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/unified'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
 
@@ -63,5 +64,6 @@ jobs:
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/login'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}

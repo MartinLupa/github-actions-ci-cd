@@ -5,6 +5,9 @@ inputs:
   app-directory:
     description: 'The directory of the app to be deployed'
     required: true
+  vercel-org-id:
+    description: 'The Vercel organization ID for the app'
+    required: true
   vercel-project-id:
     description: 'The Vercel project ID for the app'
     required: true
@@ -37,8 +40,8 @@ runs:
     - name: Pull Vercel environment information
       shell: bash
       env: 
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       run: vercel pull --yes --environment=preview --token=${{ inputs.vercel-token }}
 
     - name: Build project artifacts

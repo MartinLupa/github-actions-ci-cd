@@ -27,75 +27,39 @@ jobs:
               - added|modified|deleted: 'apps/login/**'
 
   unified-production-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.unified == 'true' }}
-    env:
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
-    runs-on: ubuntu-latest
-    environment: production
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code.
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/vercel
         with:
-          node-version: '20'
-
-      - name: Install global dependencies
-        run: |
-          npm install -g pnpm
-          npm install -g vercel@canary
-
-      - name: CD into unified project directory
-        run: cd apps/unified
-
-      - name: Install unified project dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel environment information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build unified project artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy unified project artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          app-directory: 'apps/unified'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'production'
 
   login-production-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.login == 'true' }}
-    env:
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
-    runs-on: ubuntu-latest
-    environment: production
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code.
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/vercel
         with:
-          node-version: '20'
-
-      - name: Install global dependencies
-        run: |
-          npm install -g pnpm
-          npm install -g vercel@canary
-
-      - name: CD into login project directory
-        run: cd apps/login
-
-      - name: Install login project dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel environment information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build login project artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy login project artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          app-directory: 'apps/login'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-environment: 'production'

@@ -14,10 +14,22 @@ inputs:
   vercel-token:
     description: 'The Vercel authentication token'
     required: true
+  vercel-environment:
+    description: 'The Vercel environment to deploy to'
+    required: true
+    default: 'preview'
 
 runs:
   using: composite
   steps:
+    - name: Validate Vercel environment input
+      shell: bash
+      run: |
+        if [[ "${{ inputs.vercel-environment }}" != "preview" && "${{ inputs.vercel-environment }}" != "production" ]]; then
+          echo "Invalid vercel-environment value. Must be 'preview' or 'production'."
+          exit 1
+        fi
+        
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -42,18 +54,28 @@ runs:
       env: 
         VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-      run: vercel pull --yes --environment=preview --token=${{ inputs.vercel-token }}
+      run: vercel pull --yes --environment=${{ inputs.environment }} --token=${{ inputs.vercel-token }}
 
     - name: Build project artifacts
       shell: bash
       env: 
         VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-      run: vercel build --token=${{ inputs.vercel-token }}
+      run: |
+        if [ "${{ inputs.vercel-environment }}" == "production" ]; then
+          vercel build --prod --token=${{ inputs.vercel-token }}
+        else
+          vercel build --token=${{ inputs.vercel-token }}
+        fi
 
     - name: Deploy project artifacts to Vercel
       shell: bash
       env: 
         VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
         VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-      run: vercel deploy --prebuilt --token=${{ inputs.vercel-token }}
+      run: |
+        if [ "${{ inputs.vercel-environment }}" == "production" ]; then
+          vercel deploy --prebuilt --prod --token=${{ inputs.vercel-token }}
+        else
+          vercel deploy --prebuilt --token=${{ inputs.vercel-token }}
+        fi

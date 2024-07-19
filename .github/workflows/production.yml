@@ -9,8 +9,10 @@ jobs:
   check-paths:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
       - name: Check paths
-        uses: ./.github/workflows/check-paths
+        uses: ./.github/actions/check-paths
 
   unified-production-deploy:
     runs-on: ubuntu-latest

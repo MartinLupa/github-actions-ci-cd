@@ -12,9 +12,11 @@ inputs:
     description: 'The Vercel authentication token'
     required: true
 
+env: 
+  VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
+
 runs:
   using: composite
-  
   steps:
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -37,6 +39,8 @@ runs:
 
     - name: Pull Vercel environment information
       shell: bash
+      env: 
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
       run: vercel pull --yes --environment=preview --token=${{ inputs.vercel-token }}
 
     - name: Build project artifacts
@@ -44,7 +48,6 @@ runs:
       run: vercel build --token=${{ inputs.vercel-token }}
 
     - name: Deploy project artifacts to Vercel
-      env: 
-        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
+      
       shell: bash
       run: vercel deploy --prebuilt --token=${{ inputs.vercel-token }}

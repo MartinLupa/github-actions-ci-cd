@@ -39,6 +39,10 @@ jobs:
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.unified == 'true' }}
     steps:
+      - name: Check out code.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/unified'
@@ -52,6 +56,10 @@ jobs:
     needs: [check-paths]
     if: ${{ needs.check-paths.outputs.login == 'true' }}
     steps:
+      - name: Check out code.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
       - uses: ./.github/actions/vercel
         with:
           app-directory: 'apps/login'

@@ -21,7 +21,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
     - name: Filter paths
       id: filter
       uses: dorny/paths-filter@v3

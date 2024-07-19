@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check paths
-        uses: ./.github/workflows/check-paths
+        uses: ./.github/actions/check-paths
 
   unified-preview-deploy:
     runs-on: ubuntu-latest

@@ -46,9 +46,14 @@ runs:
 
     - name: Build project artifacts
       shell: bash
+      env: 
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
       run: vercel build --token=${{ inputs.vercel-token }}
 
     - name: Deploy project artifacts to Vercel
-      
       shell: bash
+      env: 
+        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
+        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
       run: vercel deploy --prebuilt --token=${{ inputs.vercel-token }}

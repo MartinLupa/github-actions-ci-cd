@@ -12,25 +12,17 @@ jobs:
   check-paths:
     runs-on: ubuntu-latest
     outputs:
-      unified: ${{ steps.filter.outputs.unified }}
-      login: ${{ steps.filter.outputs.login }}
+      unified: ${{ steps.paths.outputs.unified }}
+      login: ${{ steps.paths.outputs.login }}
+      dynamic-forms-preview: ${{ steps.paths.outputs.dynamic-forms-preview }}
+      dynamic-forms-form-settings: ${{ steps.paths.outputs.dynamic-forms-form-settings }}
+      dynamic-forms-subscriptions: ${{ steps.paths.outputs.dynamic-forms-subscriptions }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Filter paths
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            unified:
-              - added|modified|deleted: 'apps/unified/**'
-            login:
-              - added|modified|deleted: 'apps/login/**'
-            dynamic-forms-preview:
-              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-preview/**'
-            dynamic-forms-form-settings:
-              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-form-settings/**'
-            dynamic-forms-subscriptions:
-              - added|modified|deleted: 'apps/contentful-apps/dynamic-forms-subscriptions/**'
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Check paths
+        id: paths
+        uses: ./.github/actions/check-paths
 
   unified-preview-deploy:
     runs-on: ubuntu-latest

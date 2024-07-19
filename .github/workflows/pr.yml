@@ -18,7 +18,6 @@ jobs:
   check-paths:
     runs-on: ubuntu-latest
     outputs:
-      unified: ${{ steps.paths.outputs.unified }}
       login: ${{ steps.paths.outputs.login }}
       dynamic-forms-preview: ${{ steps.paths.outputs.dynamic-forms-preview }}
       dynamic-forms-form-settings: ${{ steps.paths.outputs.dynamic-forms-form-settings }}
@@ -29,20 +28,13 @@ jobs:
       - name: Check paths
         id: paths
         uses: ./.github/actions/check-paths
-      - name: Print outputs
-        run: |
-          echo "Unified: ${{ needs.check-paths.outputs.unified }}"
-          echo "Login: ${{ needs.filter.check-paths.login }}"
-          echo "Dynamic Forms Preview: ${{ needs.filter.check-paths.dynamic-forms-preview }}"
-          echo "Dynamic Forms Form Settings: ${{ needs.filter.check-paths.dynamic-forms-form-settings }}"
-          echo "Dynamic Forms Subscriptions: ${{ needs.filter.check-paths.dynamic-forms-subscriptions }}"
 
   unified-preview-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: staging
     needs: [check-paths]
-    if: ${{ needs.check-paths.outputs.unified == 'true' }}
+    if: ${{ needs.check-paths.paths.outputs.unified == 'true' }}
     steps:
       - name: Check out code.
         uses: actions/checkout@v4

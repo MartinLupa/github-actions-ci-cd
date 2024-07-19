@@ -17,6 +17,9 @@ env:
 jobs:
   check-paths:
     runs-on: ubuntu-latest
+    outputs:
+      unified: ${{ steps.filter.outputs.unified }}
+      login: ${{ steps.filter.outputs.login }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4

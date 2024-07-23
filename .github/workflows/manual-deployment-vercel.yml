@@ -19,7 +19,7 @@ on:
         type: choice
         required: true
         options:
-          - 'preview'
+          - 'staging'
           - 'production'
         default: 'staging'
 
@@ -38,7 +38,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ inputs.version }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -83,3 +83,5 @@ jobs:
           else
             vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
           fi
+
+      # Add slack notification?

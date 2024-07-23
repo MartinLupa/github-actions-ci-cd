@@ -3,7 +3,7 @@ name: Staging Deployment
 on:
   workflow_dispatch:
   push:
-    branches: [dev]
+    branches: [master]
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}

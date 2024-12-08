@@ -1,0 +1,23 @@
+name: "Extract Pull Request Number"
+
+description: "Extract the pull request number that triggered the workflow."
+
+outputs:
+  pr-number:
+    description: "The pull request number that triggered the workflow."
+    value: ${{ steps.extract-pr-number.outputs.pr-number }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get pull request number
+      id: extract-pr-number
+      shell: bash
+      run: |
+        # Retrieve the pull request number
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+
+        echo "Extracted pull request number: $PR_NUMBER"
+
+        # Set the pull request number as output
+        echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT

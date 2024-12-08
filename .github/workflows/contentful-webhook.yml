@@ -1,0 +1,20 @@
+name: Contentful Webhook - Redeploy apps
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unified-web-app-preview-deployment:
+      name: Deploy Unified-web App (Vercel Preview)
+      uses: ./.github/workflows/reusable-vercel-deploy.yml
+      with:
+        app-name: 'Unified-web App'
+        github-environment: 'dev'
+        vercel-environment: 'preview'
+        domains: |
+          ${{ needs.get-pr-number.outputs.pr-number }}-deployment-domain.vercel.app
+      secrets: inherit

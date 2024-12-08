@@ -1,0 +1,69 @@
+name: Vercel apps deployment - Manual workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      app-name:
+        description: 'The name of the app to deploy'
+        type: choice
+        required: true
+        options:
+          - 'dfds-unified-web'
+          - 'dfds-unified-web-login'
+        default: 'dfds-unified-web'
+      environment:
+        description: 'The environment to deploy to'
+        type: choice
+        required: true
+        options:
+          - 'preview'
+          - 'production'
+        default: 'preview'
+
+permissions:
+  contents: write
+
+jobs:
+  unified-web-app-preview-deployment:
+    name: Deploy Unified-web App (Vercel)
+    if: ${{ github.event.inputs.app-name == 'dfds-unified-web' && github.event.inputs.environment == 'preview' }}
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Unified-web App'
+      github-environment: 'staging'
+      vercel-environment: 'preview'
+      domains: staging-domain-1.vercel.app
+    secrets: inherit
+  
+  unified-web-app-production-deployment:
+    name: Deploy Unified-web App (Vercel)
+    if: ${{ github.event.inputs.app-name == 'dfds-unified-web' && github.event.inputs.environment == 'production' }}
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Unified-web App'
+      github-environment: 'production'
+      vercel-environment: 'production'
+      domains: prod-domain-1.vercel.app
+    secrets: inherit
+
+  login-app-preview-deployment:
+    name: Deploy Login App (Vercel)
+    if: ${{ github.event.inputs.app-name == 'dfds-unified-web-login' && github.event.inputs.environment == 'preview' }}
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Login App'
+      github-environment: 'staging'
+      vercel-environment: 'preview'
+      domains: staging-domain-2.vercel.app
+    secrets: inherit
+
+  login-app-production-deployment:
+    name: Deploy Login App (Vercel)
+    if: ${{ github.event.inputs.app-name == 'dfds-unified-web-login' && github.event.inputs.environment == 'production' }}
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Login App'
+      github-environment: 'production'
+      vercel-environment: 'production'
+      domains: prod-domain-2.vercel.app
+    secrets: inherit

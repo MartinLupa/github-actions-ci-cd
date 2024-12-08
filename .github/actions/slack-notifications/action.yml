@@ -1,0 +1,86 @@
+name: Slack Notification
+description: Send Slack notification for success or failure with deployment details
+
+inputs:
+  app-name:
+    description: 'Name of the app being deployed'
+    required: true
+  deployment-url:
+    description: 'URL of the deployed app (output from a previous job)'
+    required: true
+  deployment-status:
+    description: 'Status of the deployment (success or failure)'
+    required: true
+  slack-channel-id:
+    description: 'Slack channel to send notifications'
+    required: true
+  slack-notifications-webhook-url:
+    description: 'Slack webhook URL for sending notifications'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Map app name to Vercel project
+      shell: bash
+      id: vercel-project
+      run: |
+        if [ "${{ inputs.app-name }}" == "Unified-web App" ]; then
+          echo "project-name=dfds-unified-web" >> $GITHUB_OUTPUT
+        elif [ "${{ inputs.app-name }}" == "Login App" ]; then
+          echo "project-name=unified-web-login" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Set Slack notification message
+      shell: bash
+      id: set-message
+      run: |
+        if [ "${{ inputs.deployment-status }}" == "failure" ]; then
+          echo "message=Deployment failed* :fire_engine:\nThe deployment triggered by *${{ github.actor }}* failed." >> $GITHUB_OUTPUT
+          echo "text=GitHub Action failed" >> $GITHUB_OUTPUT
+        elif [ "${{ inputs.deployment-status }}" == "success" ]; then
+          echo "message=Deployment succeeded* :rocket:\n*${{ github.actor }}* triggered a successful deployment.\nYou can access the deployed app here: <${{ inputs.deployment-url }}>" >> $GITHUB_OUTPUT
+          echo "text=GitHub Action success" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Notify Slack
+      uses: slackapi/slack-github-action@v1.27.0
+      with:
+        channel-id: ${{ inputs.slack-channel-id }}
+        payload: |
+          {
+            "text": "${{ steps.set-message.outputs.text }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*${{ inputs.app-name }} - ${{ steps.set-message.outputs.message }}"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": ":github: View action"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  },
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View deployments"
+                    },
+                    "url": "https://vercel.com/<organization>/${{ steps.vercel-project.outputs.project-name }}/deployments"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-notifications-webhook-url }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

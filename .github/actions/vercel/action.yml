@@ -2,80 +2,70 @@ name: Deploy to Vercel
 description: Deploy the app using Vercel CLI
 
 inputs:
-  app-directory:
-    description: 'The directory of the app to be deployed'
-    required: true
-  vercel-org-id:
-    description: 'The Vercel organization ID for the app'
-    required: true
-  vercel-project-id:
-    description: 'The Vercel project ID for the app'
-    required: true
-  vercel-token:
-    description: 'The Vercel authentication token'
+  app-name:
+    description: 'The name of the app to deploy.'
     required: true
   vercel-environment:
-    description: 'The Vercel environment to deploy to'
+    description: 'The Vercel environment to deploy to.'
     required: true
     default: 'preview'
+  domains:
+    description: 'The list of domains to alias the deployment, one per line.'
+    required: true
+
+outputs:
+  deployment-url:
+    description: "Vercel's deployment URL."
+    value: ${{ steps.vercel-deploy.outputs.deployment-url }}
 
 runs:
   using: composite
   steps:
-    - name: Validate Vercel environment input
-      shell: bash
-      run: |
-        if [[ "${{ inputs.vercel-environment }}" != "preview" && "${{ inputs.vercel-environment }}" != "production" ]]; then
-          echo "Invalid vercel-environment value. Must be 'preview' or 'production'."
-          exit 1
-        fi
-        
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+    - name: Setup PNPM
+      uses: './.github/actions/setup-pnpm'
 
-    - name: Install global dependencies
+    - name: Install Vercel CLI
       shell: bash
-      run: |
-        npm install -g pnpm
-        npm install -g vercel@canary
-
-    - name: Change to app directory
-      shell: bash
-      run: cd ${{ inputs.app-directory }}
-
-    - name: Install project dependencies
-      shell: bash
-      run: pnpm install --frozen-lockfile
+      run: pnpm install -g vercel@latest
 
     - name: Pull Vercel environment information
       shell: bash
-      env: 
-        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
-        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
-      run: vercel pull --yes --environment=${{ inputs.environment }} --token=${{ inputs.vercel-token }}
+      run: vercel pull --yes --environment=${{ inputs.vercel-environment }} --token=${{ env.VERCEL_TOKEN }}
 
-    - name: Build project artifacts
+    - name: Build and Deploy Project Artifacts to Vercel
       shell: bash
-      env: 
-        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
-        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
       run: |
-        if [ "${{ inputs.vercel-environment }}" == "production" ]; then
-          vercel build --prod --token=${{ inputs.vercel-token }}
+        # Conditionally add --prod flag if vercel-environment is production
+        if [[ "${{ inputs.vercel-environment }}" == "production" ]]; then
+          vercel build --prod --token=${{ env.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }} > domain.txt
         else
-          vercel build --token=${{ inputs.vercel-token }}
+          vercel build --token=${{ env.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} > domain.txt
         fi
 
-    - name: Deploy project artifacts to Vercel
+        # Alias the deployment to all provided domains
+        while IFS= read -r domain; do
+          if [[ -n "$domain" ]]; then  # Only process non-empty lines
+            vercel alias set `cat domain.txt` "$domain" --scope=${{ env.VERCEL_ORG_ID }} --token=${{ env.VERCEL_TOKEN }}
+          fi
+        done <<< "${{ inputs.domains }}"
+
+    - name: Set deployment URL output
+      id: vercel-deploy
       shell: bash
-      env: 
-        VERCEL_ORG_ID: ${{ inputs.vercel-org-id }}
-        VERCEL_PROJECT_ID: ${{ inputs.vercel-project-id }}
       run: |
-        if [ "${{ inputs.vercel-environment }}" == "production" ]; then
-          vercel deploy --prebuilt --prod --token=${{ inputs.vercel-token }}
-        else
-          vercel deploy --prebuilt --token=${{ inputs.vercel-token }}
-        fi
+        # Extract the first domain from the list of domains
+        first_domain=$(echo "${{ inputs.domains }}" | head -n 1)
+
+        # Set the deployment URL output using the first domain
+        echo "deployment-url=https://$first_domain" >> $GITHUB_OUTPUT
+
+    - name: Comment pull request with deployment URL
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        message: |
+          **${{ inputs.app-name }}** - Deployment succeeded :rocket:
+          You can access the deployed app here: ${{ steps.vercel-deploy.outputs.deployment-url }}
+        comment-tag: $${{ steps.vercel-deploy.outputs.deployment-url }}

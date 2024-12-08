@@ -7,22 +7,36 @@ on:
     branches:
       - master
 
-permissions:
-  contents: read
-  pull-requests: write
-
 env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  CI: true
+  HUSKY: 0
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # ----------------------------------------
+  # Code quality checks
+  # ----------------------------------------
+ 
+
+  # ----------------------------------------
+  # Deployments
+  # ----------------------------------------
   check-paths:
+    name: Check modified paths
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       unified: ${{ steps.paths.outputs.unified }}
       login: ${{ steps.paths.outputs.login }}
       dynamic-forms-preview: ${{ steps.paths.outputs.dynamic-forms-preview }}
       dynamic-forms-form-settings: ${{ steps.paths.outputs.dynamic-forms-form-settings }}
       dynamic-forms-subscriptions: ${{ steps.paths.outputs.dynamic-forms-subscriptions }}
+      packages: ${{ steps.paths.outputs.packages }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -30,45 +44,71 @@ jobs:
         id: paths
         uses: ./.github/actions/check-paths
 
-  unified-preview-deploy:
+  get-pr-number:
+    name: Get pull request number
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: staging
-    needs: [check-paths]
-    if: ${{ needs.check-paths.outputs.unified == 'true' }}
+    outputs:
+      pr-number: ${{ steps.pr-number.outputs.pr-number }}
     steps:
-      - name: Check out code.
+      - name: Check out code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - uses: ./.github/actions/vercel
-        with:
-          app-directory: 'apps/unified'
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_UNIFIED_PROJECT_ID }}
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-environment: 'preview'
+      - uses: ./.github/actions/pr-number
+        id: pr-number
 
-  login-preview-deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: staging
+  unified-web-app-preview-deployment:
+    name: Deploy Unified-web App (Vercel Preview)
+    if: ${{ needs.check-paths.outputs.unified == 'true' || needs.check-paths.outputs.packages == 'true' }}
+    needs: [check-paths, get-pr-number]
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Unified-web App'
+      github-environment: 'dev'
+      vercel-environment: 'preview'
+      domains: |
+        ${{ needs.get-pr-number.outputs.pr-number }}-pr-domain-1.vercel.app
+    secrets: inherit
+
+  login-app-preview-deployment:
+    name: Deploy Login App (Vercel Preview)
+    if: ${{ needs.check-paths.outputs.login == 'true' || needs.check-paths.outputs.packages == 'true' }}
+    needs: [check-paths, get-pr-number]
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
+    with:
+      app-name: 'Login App'
+      github-environment: 'dev'
+      vercel-environment: 'preview'
+      domains: |
+        ${{ needs.get-pr-number.outputs.pr-number }}-pr-domain-2.vercel.app
+        other-domain.vercel.app
+    secrets: inherit
+
+  dynamic-forms-preview-dev-deploy:
+    name: Deploy Dynamic Forms Preview (Contentful Dev)
+    if: ${{ needs.check-paths.outputs.dynamic-forms-preview == 'true' }}
     needs: [check-paths]
-    if: ${{ needs.check-paths.outputs.login == 'true' }}
-    steps:
-      - name: Check out code.
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - uses: ./.github/actions/vercel
-        with:
-          app-directory: 'apps/login'
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_LOGIN_PROJECT_ID }}
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-environment: 'preview'
-
-  # TODO: Add deployment steps for the following apps:
-  # dynamic-forms-preview-dev-deploy
-  # dynamic-forms-form-settings-dev-deploy
-  # dynamic-forms-subscriptions-dev-deploy
+    uses: ./.github/workflows/reusable-contentful-deploy.yml
+    with:
+      app-name: 'Dynamic Forms Preview'
+      app-definition: ''
+      github-environment: 'dev'
+        
+  dynamic-forms-form-settings-dev-deploy:
+    name: Deploy Dynamic Forms Form Settings (Contentful Dev)
+    if: ${{ needs.check-paths.outputs.dynamic-forms-form-settings == 'true' }}
+    needs: [check-paths]
+    uses: ./.github/workflows/reusable-contentful-deploy.yml
+    with:
+      app-name: 'Dynamic Forms Form Settings'
+      app-definition: ''
+      github-environment: 'dev'
+        
+  dynamic-forms-subscriptions-dev-deploy:
+    name: Deploy Dynamic Forms Subscriptions (Contentful Dev)
+    if: ${{ needs.check-paths.outputs.dynamic-forms-subscriptions == 'true' }}
+    needs: [check-paths]
+    uses: ./.github/workflows/reusable-contentful-deploy.yml
+    with:
+      app-name: 'Dynamic Forms Subscriptions'
+      app-definition: ''
+      github-environment: 'dev'

@@ -1,0 +1,48 @@
+name: Deploy to Contentful
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: 'The name of the app to deploy.'
+        type: string
+        required: true
+      app-definition:
+        description: 'The Contentful app definition id to deploy.'
+        type: string
+        required: true
+      github-environment:
+        description: 'The GitHub environment to deploy to.'
+        type: string
+        required: true
+
+jobs:
+  contentful-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.github-environment }}
+    env:
+      # Shared secrets
+      CONTENTFUL_APP_DEF_ID: ${{ inputs.app-definition }}
+      CONTENTFUL_ORG_ID: ${{ secrets.CONTENTFUL_ORG_ID }}
+      CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_MANAGEMENT_API_ACCESS_TOKEN }}
+
+      # Dynamic forms preview app secrets
+
+      # Dynamic forms form settings app secrets
+
+      # Dynamic forms subscriptions app secrets
+
+    steps:
+      - name: Check out code.
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup PNPM
+        uses: './.github/actions/setup-pnpm'
+      
+      - name: Build and Upload
+        run: |
+          pnpm build --filter=dynamic-forms-preview
+          cd apps/contentful-apps/dynamic-forms-preview
+          pnpm upload

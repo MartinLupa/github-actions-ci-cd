@@ -1,10 +1,10 @@
-name: Contentful apps deployment
+name: Contentful apps deployment - Manual workflow
 
 on:
   workflow_dispatch:
     inputs:
-      app:
-        description: 'App to deploy'
+      app-name:
+        description: 'The name of the app to deploy'
         type: choice
         required: true
         options:
@@ -12,9 +12,7 @@ on:
           - 'dynamic-forms-form-settings'
           - 'dynamic-forms-subscriptions'
         default: 'dynamic-forms-preview'
-      version:
-        description: 'The branch, tag or SHA to checkout'
-        required: true
+
       environment:
         description: 'Deployment environment'
         type: choice
@@ -29,38 +27,31 @@ permissions:
   contents: write
 
 jobs:
-  deploy:
-    name: 'Deploy ${{ github.event.inputs.app }} to ${{ github.event.inputs.environment }} (${{ github.event.inputs.version }})'
+  map-app-definition:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
-    timeout-minutes: 45
-    env:
-      CONTENTFUL_ORG_ID: ${{ secrets.CONTENTFUL_ORG_ID }}
-      CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_MANAGEMENT_API_ACCESS_TOKEN }}
-      CONTENTFUL_SHARED_CONTENT_PREVIEW_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_CONTENTFUL_SHARED_CONTENT_PREVIEW_ACCESS_TOKEN }}
+    name: Map inputs to app definition
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup PNPM
-        uses: './.github/actions/setup-pnpm'
-
-      - name: Set environment variables
+      - name: Determine App Definition ID
+        id: map-app-definition
         run: |
-          if [ "${{ github.event.inputs.app }}" == "dynamic-forms-form-settings" ]; then
-            echo "CONTENTFUL_APP_DEF_ID=${{ secrets.CONTENTFUL_APP_ID_DYNAMIC_FORMS_FORM_SETTINGS }}" >> $GITHUB_ENV  
-          elif [ "${{ github.event.inputs.app }}" == "dynamic-forms-subscriptions" ]; then
-            echo "CONTENTFUL_APP_DEF_ID=${{ secrets.CONTENTFUL_APP_ID_DYNAMIC_FORMS_SUBSCRIPTION }}" >> $GITHUB_ENV
-            echo "VITE_BACKEND_URL=${{ secrets.BACKEND_URL }}" >> $GITHUB_ENV
-            echo "VITE_TARGET_CONTENTFUL_ENVIRONMENT=master" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.app }}" == "dynamic-forms-preview" ]; then
-            echo "CONTENTFUL_APP_DEF_ID=${{ secrets.CONTENTFUL_APP_ID_DYNAMIC_FORMS_PREVIEW }}" >> $GITHUB_ENV
-            echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
-            echo "CONTENTFUL_APP_DEF_ID=${{ secrets.CONTENTFUL_APP_ID_DYNAMIC_FORMS_PREVIEW }}" >> $GITHUB_ENV
-          fi
+          case "${{ github.event.inputs.app-name }}-${{ github.event.inputs.environment }}" in
+            "dynamic-forms-preview-dev") echo "app-definition=a" >> $GITHUB_ENV ;;
+            "dynamic-forms-preview-staging") echo "app-definition=b" >> $GITHUB_ENV ;;
+            "dynamic-forms-preview-production") echo "app-definition=c" >> $GITHUB_ENV ;;
+            "dynamic-forms-form-settings-dev") echo "app-definition=d" >> $GITHUB_ENV ;;
+            "dynamic-forms-form-settings-staging") echo "app-definition=e" >> $GITHUB_ENV ;;
+            "dynamic-forms-form-settings-production") echo "app-definition=f" >> $GITHUB_ENV ;;
+            "dynamic-forms-subscriptions-dev") echo "app-definition=g" >> $GITHUB_ENV ;;
+            "dynamic-forms-subscriptions-staging") echo "app-definition=h" >> $GITHUB_ENV ;;
+            "dynamic-forms-subscriptions-production") echo "app-definition=i" >> $GITHUB_ENV ;;
+            *) echo "Error: Invalid app-name or environment combination!" && exit 1 ;;
+          esac
 
-      - name: Build and Upload - Contentful App - ${{ github.event.inputs.app }}
-        run: |
-          pnpm build:contentful-forms-apps
-          cd apps/contentful-apps/${{ github.event.inputs.app }}
-          pnpm upload
+  deploy:
+    name: Deploy ${{ github.event.inputs.app-name }} (Contentful ${{ github.event.inputs.environment }})
+    uses: ./.github/workflows/reusable-contentful-deploy.yml
+    needs: map-app-definition
+    with:
+      app-name: ${{ github.event.inputs.app-name }}
+      app-definition: ${{ needs.steps.map-app-definition.outputs.app-definition }}
+      github-environment: ${{ github.event.inputs.environment }}

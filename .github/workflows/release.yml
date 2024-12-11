@@ -27,7 +27,7 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       prs_created: ${{ steps.release.outputs.prs_created }}
-      pr_number: ${{ steps.release.outputs.pr.number }}
+      all_outputs: ${{ steps.release.outputs }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -39,4 +39,4 @@ jobs:
         run: |
           echo "Releases created: ${{ steps.release.outputs.releases_created }}"
           echo "PRs created: ${{ steps.release.outputs.prs_created }}"
-          echo "PR number: ${{ steps.release.outputs.pr.number }}"
+          echo "PR number: ${{ steps.release.outputs.all_outputs }}"

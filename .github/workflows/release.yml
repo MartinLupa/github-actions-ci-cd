@@ -39,4 +39,8 @@ jobs:
         run: |
           echo "Releases created: ${{ steps.release.outputs.releases_created }}"
           echo "PRs created: ${{ steps.release.outputs.prs_created }}"
-          echo "PR number: ${{ steps.release.outputs.pr }}"
+          echo "PR details: ${{ steps.release.outputs.pr }}"
+          PR_NUMBER=$(echo '${{ steps.release.outputs.pr }}' | jq -r '.number')
+          echo "PR number: $PR_NUMBER"
+        env:
+          PR_JSON: ${{ steps.release.outputs.pr }}

@@ -21,8 +21,9 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Setup PNPM
-      uses: './.github/actions/setup-pnpm'
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 9
 
     - name: Install Vercel CLI
       shell: bash

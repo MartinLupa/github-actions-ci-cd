@@ -1,0 +1,44 @@
+name: Release apps
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+env:
+  CI: true
+  HUSKY: 0
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      prs_created: ${{ steps.release.outputs.prs_created }}
+      pr_number: ${{ steps.release.outputs.pr.number }}
+    steps:
+      - uses: googleapis/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          monorepo-tags: true
+          default-branch: master
+      - name: Echo outputs
+        run: |
+          echo "Releases created: ${{ steps.release.outputs.releases_created }}"
+          echo "PRs created: ${{ steps.release.outputs.prs_created }}"
+          echo "PR number: ${{ steps.release.outputs.pr.number }}"

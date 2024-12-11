@@ -1,0 +1,11 @@
+
+{
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "plugins": ["node-workspace"],
+    "release-type": "node",
+    "packages": {
+      "apps/unified": {},
+      "apps/login": {}
+    }
+  }
+  

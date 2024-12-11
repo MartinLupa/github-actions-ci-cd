@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.0.0...v1.1.0) (2024-12-11)
+
+
+### Features
+
+* supper dummy change to trigger release ([75d076e](https://github.com/MartinLupa/github-actions-ci-cd/commit/75d076e6647a361ef03fc8bfb7c794eeddefd7d8))
+
 ## 1.0.0 (2024-12-11)
 
 

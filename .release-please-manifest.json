@@ -1,4 +1,5 @@
 {
     "apps/unified": "1.1.0",
-    "apps/login": "1.0.0"
+    "apps/login": "1.0.0",
+    ".": "1.0.0"
 }

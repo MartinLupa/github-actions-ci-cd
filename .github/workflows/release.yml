@@ -35,12 +35,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
         
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Echo outputs
         run: |
           echo "Releases created: ${{ steps.release.outputs.releases_created }}"
           echo "PRs created: ${{ steps.release.outputs.prs_created }}"
-          echo "PR details: ${{ steps.release.outputs.pr }}"
-          PR_NUMBER=$(echo '${{ steps.release.outputs.pr }}' | jq -r '.number')
+          echo "PR details: $PR_JSON"
+          PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
           echo "PR number: $PR_NUMBER"
         env:
           PR_JSON: ${{ steps.release.outputs.pr }}

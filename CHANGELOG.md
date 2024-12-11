@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.1.0...v1.2.0) (2024-12-11)
+
+
+### Features
+
+* dummy changes ([7a5ca8c](https://github.com/MartinLupa/github-actions-ci-cd/commit/7a5ca8c3afbb109b3fc7c0f995305063575dc69a))
+
 ## [1.1.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.0.0...v1.1.0) (2024-12-11)
 
 

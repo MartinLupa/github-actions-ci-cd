@@ -27,23 +27,28 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       prs_created: ${{ steps.release.outputs.prs_created }}
-      pr: ${{ steps.release.outputs.pr }}
+      pr_number: ${{ steps.set-output.outputs.pr_number }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-        
-      - name: Install jq
-        run: sudo apt-get install -y jq
 
-      - name: Echo outputs
+      - name: Install jq and parse outputs # Required for parsing release job JSON outputs
+        id: set-output
         run: |
-          echo "Releases created: ${{ steps.release.outputs.releases_created }}"
-          echo "PRs created: ${{ steps.release.outputs.prs_created }}"
-          echo "PR details: $PR_JSON"
+          sudo apt-get install -y jq
           PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
           echo "PR number: $PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
         env:
           PR_JSON: ${{ steps.release.outputs.pr }}
+
+  another-job:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use PR number
+        run: |
+          echo "Using PR number: ${{ needs.release.outputs.pr_number }}"

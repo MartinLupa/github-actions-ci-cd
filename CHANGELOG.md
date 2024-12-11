@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.2.0...v1.3.0) (2024-12-11)
+
+
+### Features
+
+* dummy change to trigger release ([2746a0d](https://github.com/MartinLupa/github-actions-ci-cd/commit/2746a0dfd8c69ec0b9f0aa42ea77814228b6258e))
+* update pr output access ([b01a4cb](https://github.com/MartinLupa/github-actions-ci-cd/commit/b01a4cb59cf4fb289071a15255e90ad52cb26bc5))
+
 ## [1.2.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.1.0...v1.2.0) (2024-12-11)
 
 

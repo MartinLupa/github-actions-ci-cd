@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.3.0...v1.4.0) (2024-12-11)
+
+
+### Features
+
+* add michael scott image ([41dffdb](https://github.com/MartinLupa/github-actions-ci-cd/commit/41dffdb0250aada1fbe43acaf4c9b5b216dcc889))
+
+
+### Bug Fixes
+
+* output echo ([2660030](https://github.com/MartinLupa/github-actions-ci-cd/commit/2660030a874fc6c80256639335bbcb8ff6e8c934))
+
 ## [1.3.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.2.0...v1.3.0) (2024-12-11)
 
 

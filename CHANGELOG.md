@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.5.0...v1.6.0) (2024-12-11)
+
+
+### Features
+
+* add artifacts to upload to pr comment ([7e4d82e](https://github.com/MartinLupa/github-actions-ci-cd/commit/7e4d82e9d99183ff4430ddbb29f7576239e2e518))
+
 ## [1.5.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.4.0...v1.5.0) (2024-12-11)
 
 

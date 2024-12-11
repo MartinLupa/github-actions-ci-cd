@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.5.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.4.0...v1.5.0) (2024-12-11)
+
+
+### Features
+
+* update dummy.md ([4ba82dc](https://github.com/MartinLupa/github-actions-ci-cd/commit/4ba82dc2b49c05bb0cb56bd5f983d3ff6f8bcfce))
+
+## [1.4.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.3.0...v1.4.0) (2024-12-11)
+
+
+### Features
+
+* add michael scott image ([41dffdb](https://github.com/MartinLupa/github-actions-ci-cd/commit/41dffdb0250aada1fbe43acaf4c9b5b216dcc889))
+* update dummy.md ([adab295](https://github.com/MartinLupa/github-actions-ci-cd/commit/adab2955d6d54bf70bd9ace911e41283ec82fc7d))
+
+
+### Bug Fixes
+
+* output echo ([2660030](https://github.com/MartinLupa/github-actions-ci-cd/commit/2660030a874fc6c80256639335bbcb8ff6e8c934))
+
 ## [1.3.0](https://github.com/MartinLupa/github-actions-ci-cd/compare/v1.2.0...v1.3.0) (2024-12-11)
 
 
